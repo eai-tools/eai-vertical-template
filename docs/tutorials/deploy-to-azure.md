@@ -186,8 +186,17 @@ This ensures all routes and static assets are served under `/my-vertical/`.
 
 ### Authentication redirect fails
 
-- Ensure `AUTH_URL` includes the full base path: `https://app-demo-eai-dev.azurewebsites.net/my-vertical`
-- Verify Entra CIAM redirect URIs include your deployed URL
+- Ensure `AUTH_URL` includes the **full path through `/api/auth`**:
+  `https://app-demo-eai-dev.azurewebsites.net/my-vertical/api/auth`
+  (Auth.js v5 reads the URL's pathname as its basePath; without `/api/auth`
+  in `AUTH_URL`, the action parser rejects every request as `UnknownAction`.)
+- Verify Entra CIAM redirect URIs include `{AUTH_URL}/callback/microsoft-entra-id`
+- The `[...nextauth]` route handler ships with a small request rewriter that
+  re-prepends `APP_BASE_PATH` to the URL Next.js stripped before invoking
+  Auth.js — see `src/app/api/auth/[...nextauth]/route.ts`. Don't simplify
+  it to `export const { GET, POST } = handlers` or sign-in will 400 with
+  `UnknownAction: Cannot parse action at /api/auth/...`. Upstream issue:
+  [nextauthjs/next-auth#9722](https://github.com/nextauthjs/next-auth/issues/9722).
 
 ### Build fails
 
