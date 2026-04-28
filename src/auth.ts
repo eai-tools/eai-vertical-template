@@ -101,6 +101,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
+    // Auth.js redirects (post-sign-in callbackUrl, sign-out redirectTo,
+    // pages.signIn) live outside Next.js's <Link>/router and don't
+    // automatically pick up basePath. Prepend APP_BASE_PATH to in-app
+    // paths so callers can write `callbackUrl: '/dashboard'` and land
+    // at `/my-vertical/dashboard` instead of `/dashboard` (which 404s).
+    // No-op when APP_BASE_PATH is empty (root mount).
+    async redirect({ url, baseUrl }) {
+      const basePath = (process.env.APP_BASE_PATH ?? '').replace(/\/+$/, '');
+      if (!basePath) return url;
+      if (url.startsWith(`${baseUrl}${basePath}/`) || url === `${baseUrl}${basePath}`) {
+        return url;
+      }
+      if (url.startsWith('/')) {
+        return `${baseUrl}${basePath}${url === '/' ? '' : url}`;
+      }
+      if (url.startsWith(`${baseUrl}/`) || url === baseUrl) {
+        return url.replace(baseUrl, `${baseUrl}${basePath}`);
+      }
+      return `${baseUrl}${basePath}`;
+    },
     async jwt({ token, account, user }) {
       // Initial sign in
       if (account && user) {
