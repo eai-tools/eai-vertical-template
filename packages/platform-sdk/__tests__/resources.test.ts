@@ -365,11 +365,7 @@ describe('ResourcesModule', () => {
 
   describe('object type slug conversion', () => {
     it('converts PascalCase object types to kebab-case in the URL', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: () => Promise.resolve({ id: '1', data: {}, version: 1 }),
-      });
+      mockOkResponse({ id: '1', data: {}, version: 1 });
 
       await resources.get('TrendDigest', '1');
 
@@ -379,12 +375,8 @@ describe('ResourcesModule', () => {
       );
     });
 
-    it('handles consecutive capitals (e.g. APIKey -> api-key)', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: () => Promise.resolve({ id: '1', data: {}, version: 1 }),
-      });
+    it('handles consecutive capitals in object type names', async () => {
+      mockOkResponse({ id: '1', data: {}, version: 1 });
 
       await resources.get('APIKey', '1');
 
