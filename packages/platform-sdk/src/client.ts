@@ -5,7 +5,6 @@
  * Uses BFF proxy paths by default — tokens are injected server-side.
  */
 
-import type { OrchestrationRequest } from './types';
 import { PlatformError } from './errors';
 import { ResourcesModule } from './modules/resources';
 import { ChatModule } from './modules/chat';
@@ -41,27 +40,9 @@ export class EAIPlatformClient {
   private _orchestrate?: OrchestrateModule;
 
   constructor(config: PlatformClientConfig) {
-    // Empty tenantId in the URL produces `/v3/resources//{type}` which
-    // Next.js 308-redirects, dropping the tenant segment entirely. Fall
-    // back to NEXT_PUBLIC_EAI_TENANT_ID so callers that don't pass one
-    // explicitly still get a valid path. Server forces the canonical
-    // tenant via header anyway; this is just for path construction.
-    const envTenantId =
-      typeof process !== 'undefined'
-        ? process.env.NEXT_PUBLIC_EAI_TENANT_ID ?? ''
-        : '';
-    this.tenantId = config.tenantId || envTenantId;
-
-    // Honor Next.js basePath when running under one. NEXT_PUBLIC_* is
-    // inlined at build time so the prefix lands in the client bundle.
-    // No-op when empty (root mount or non-Next environments).
-    const basePath = (
-      typeof process !== 'undefined'
-        ? process.env.NEXT_PUBLIC_APP_BASE_PATH ?? ''
-        : ''
-    ).replace(/\/+$/, '');
-    this.baseUrl = config.baseUrl || `${basePath}/api/eai`;
-    this.streamBaseUrl = config.streamBaseUrl || `${basePath}/api/eai/stream`;
+    this.tenantId = config.tenantId;
+    this.baseUrl = config.baseUrl || '/api/eai';
+    this.streamBaseUrl = config.streamBaseUrl || '/api/eai/stream';
   }
 
   /** CRUD operations on resources via /v3/resources/* */

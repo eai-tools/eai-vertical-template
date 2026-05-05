@@ -29,12 +29,6 @@ export class ResourcesModule {
   ) {}
 
   private resourceUrl(objectType: string, id?: string): string {
-    // Configurator stores Object Type slugs as kebab-case (e.g. PascalCase
-    // `TrendDigest` becomes `trend-digest`). Convert the PascalCase
-    // identifier callers pass (matching what's declared in
-    // `eai.config/object-types.ts`) to the wire slug here so callers don't
-    // have to know the encoding. Plain `.toLowerCase()` would turn
-    // `TrendDigest` into `trenddigest` and 404 on the resources endpoint.
     const slug = objectType
       .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
       .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
